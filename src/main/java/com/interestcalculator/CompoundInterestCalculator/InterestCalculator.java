@@ -2,17 +2,7 @@ package com.interestcalculator.CompoundInterestCalculator;
 
 import java.util.Scanner;
 
-public class InterestCalculator {
-	/**
-	 * Array of error messages with error code as index [See checkDouble()]
-	 */
-	private static String[] errorMsgs = {
-			"Passed!",
-			"You must input a number",
-			"Your number cannot be zero or negative",
-			"Your number must be 1 or larger",
-	};
-	
+public class InterestCalculator {	
 	/**
 	 * Check if input fits requirements and returns an error code if a requirement fails:
 	 *
@@ -24,19 +14,18 @@ public class InterestCalculator {
 	 * 				2 - Number is <= 0
 	 * 				3 - Number is < 1
 	 */
-	protected static int checkDouble(String str) {
+	protected static double checkAndParseDouble(String str) {
 		double result;
 		
 		try {
 			result = Double.parseDouble(str);
 		} catch (Exception e) {
-			return 1;
+			throw new RuntimeException("You must input a number");
 		}
 		
-		if (result <= 0) return 2;
-		if (result < 1) return 3;
+		if (result <= 0) throw new RuntimeException("Your number cannot be zero or negative");
 		
-		return 0;
+		return Double.parseDouble(str);
 	}
 
 	/**
@@ -50,8 +39,8 @@ public class InterestCalculator {
 	 * 
 	 * @return
 	 */
-	protected static double takeInput(String msg, Scanner scnr, int... successCodes ) {
-		double db;
+	protected static double takeInput(String msg, Scanner scnr, boolean isMfactor ) {
+		double db = 0;
 		String temp;
 		boolean pass = false;
 		
@@ -60,20 +49,20 @@ public class InterestCalculator {
 			System.out.println(msg);
 			
 			temp = scnr.nextLine().strip();
-			// Check if input is valid
-			int result = checkDouble(temp);
-			// Check if error codes are acceptable
-			for (int x : successCodes) {
-				if (x == result) {
-					pass = true;
-					break;
+			
+			try {
+				// Check if input is valid
+				db = checkAndParseDouble(temp);
+				if (isMfactor && db < 1) {
+					System.out.println("The multiplication factor cannot be less than 1.");
+				} else {
+					pass= true;
 				}
+			} catch(RuntimeException e) {
+				System.out.println(e.getMessage());
 			}
-			// Print error message if failed
-			if (!pass) System.out.println(errorMsgs[result]);
 			// Restart loop to prompt for user input again
 		} while (!pass);
-		db = Double.parseDouble(temp);
 		
 		return db;
 	}
@@ -117,16 +106,16 @@ public class InterestCalculator {
 		double compoundRate;
 		
 		// Get deposit amount from console
-		deposit = takeInput("Input your deposit amount in USD:", scnr, 0, 3);
+		deposit = takeInput("Input your deposit amount in USD:", scnr, false);
 		
 		// Get rate of interest
-		compoundRate = takeInput("How many times in one year is interest compounded?", scnr, 0, 3);
+		compoundRate = takeInput("How many times in one year is interest compounded?", scnr, false);
 		
 		// Get interest amount from console
-		interest = takeInput("Input your interest rate in %:", scnr, 0, 3);
+		interest = takeInput("Input your interest rate in %:", scnr, false);
 		
 		// Get multiplication factor from console
-		mfactor = takeInput("Input your multiplication factor:", scnr, 0);
+		mfactor = takeInput("Input your multiplication factor:", scnr, true);
 		
 		scnr.close();
 

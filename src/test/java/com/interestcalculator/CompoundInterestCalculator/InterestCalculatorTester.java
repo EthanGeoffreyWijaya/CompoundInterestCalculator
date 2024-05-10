@@ -3,6 +3,7 @@ package com.interestcalculator.CompoundInterestCalculator;
 import java.util.Scanner;
 import org.junit.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 public class InterestCalculatorTester {
 
@@ -11,40 +12,50 @@ public class InterestCalculatorTester {
 	 */
 	@Test
 	public void testCheckDouble() {
-		// 1 Check if error code = 0, meaning input is number >= 1
-		String errmsg1 = "error 1: checkDouble failed to return 0 when all requirements passed";
-		assertEquals(errmsg1, 0, InterestCalculator.checkDouble("5"));
-		assertEquals(errmsg1, 0, InterestCalculator.checkDouble("200"));
-		assertEquals(errmsg1, 0, InterestCalculator.checkDouble("50000"));
-		assertEquals(errmsg1, 0, InterestCalculator.checkDouble("5.45"));
+		// Check if parsed double is properly returned upon valid input
+		String errmsg1 = "error 1: checkDouble failed to return valid parsed double from string";
+		// Ensure exception is not thrown
+		try {
+			// Normal double
+			assertEquals(errmsg1, 5, InterestCalculator.checkAndParseDouble("5"), 0.001);
+			// Medium double
+			assertEquals(errmsg1, 50000, InterestCalculator.checkAndParseDouble("50000"), 0.001);
+			// Large double
+			assertEquals(errmsg1, 500000000, InterestCalculator.checkAndParseDouble("500000000"), 0.001);
+			// Double with decimal point
+			assertEquals(errmsg1, 5.45, InterestCalculator.checkAndParseDouble("5.45"), 0.001);
+			// Small double
+			assertEquals(errmsg1, 0.00001, InterestCalculator.checkAndParseDouble("0.00001"), 0.00000001);
+		} catch (Exception e) {
+			System.out.println("error 2: checkDouble should not throw an exception with valid input");
+		}
 
-		// 2 Check if error code = 1 upon null input
-		assertEquals("error 2: checkDouble failed to return 1 with null input"
-				, 1, InterestCalculator.checkDouble(null));
+		// 2 Check if exception is thrown with null input
+		assertThrows("error 3: checkDouble failed to return 1 with null input"
+				, RuntimeException.class, () -> InterestCalculator.checkAndParseDouble(null));
 		
-		// 3 Check if error code = 1 upon empty input
-		assertEquals("error 3: checkDouble failed to return 1 with empty input"
-				, 1, InterestCalculator.checkDouble(""));
+		// 3 Check if exception is thrown with empty string input
+		assertThrows("error 4: checkDouble failed to return 1 with empty input"
+				, RuntimeException.class, () -> InterestCalculator.checkAndParseDouble(""));
 		
-		// 4 Check if error code = 1 if input is not a valid double
-		String errmsg4 = "error 4: checkDouble failed to return 1 with non-double input (words and invalid numbers)";
-		assertEquals(errmsg4, 1, InterestCalculator.checkDouble("hello"));
-		assertEquals(errmsg4, 1, InterestCalculator.checkDouble("aerghjuyt"));
-		assertEquals(errmsg4, 1, InterestCalculator.checkDouble("dh8237yeg8d23o7y"));
-		assertEquals(errmsg4, 1, InterestCalculator.checkDouble("50.0.0"));
-		assertEquals(errmsg4, 1, InterestCalculator.checkDouble("\'\"44"));
+		// 4 Check if exception is thrown with non-double input
+		String errmsg4 = "error 5: checkDouble failed to return 1 with non-double input (words and invalid numbers)";
+		// Character string input
+		assertThrows(errmsg4, RuntimeException.class, () -> InterestCalculator.checkAndParseDouble("hello"));
+		assertThrows(errmsg4, RuntimeException.class, () -> InterestCalculator.checkAndParseDouble("aerghjuyt"));
+		// Mix of characters and numbers
+		assertThrows(errmsg4, RuntimeException.class, () -> InterestCalculator.checkAndParseDouble("dh8237yeg8d23o7y"));
+		// Numbers but invalid double format
+		assertThrows(errmsg4, RuntimeException.class, () -> InterestCalculator.checkAndParseDouble("50.0.0"));
+		assertThrows(errmsg4, RuntimeException.class, () -> InterestCalculator.checkAndParseDouble("\'\"44"));
 		
-		// 5 Check if error code = 2 upon 0 input
-		assertEquals("error 5: checkDouble failed to return 2 with input 0"
-				, 2, InterestCalculator.checkDouble("0"));
+		// 5 Check if exception is thrown with input of 0
+		assertThrows("error 5: checkDouble failed to return 2 with input 0"
+				, RuntimeException.class, () -> InterestCalculator.checkAndParseDouble("0"));
 		
-		// 6 Check if error code = 2 upon negative input
-		assertEquals("error 6: checkDouble failed to return 2 with input -1000"
-				, 2, InterestCalculator.checkDouble("-1000"));
-		
-		// 7 Check if error code = 3 if input < 1
-		assertEquals("error 6: checkDouble failed to return 3 with input 0.5"
-				, 3, InterestCalculator.checkDouble("0.5"));
+		// 6 Check if exception is thrown with negative input
+		assertThrows("error 6: checkDouble failed to return 2 with input -1000"
+				, RuntimeException.class, () -> InterestCalculator.checkAndParseDouble("-1000"));
 	}
 	
 	/**
@@ -52,22 +63,18 @@ public class InterestCalculatorTester {
 	 */
 	@Test
 	public void testTakeInput() {
-		// 1 Take input that isn't null, isn't 0, and isn't negative
+		// 1 Check if takeInput parses correct input when user returns characters, negative numbers
+		//	and 0 with mfactor set to false
 		Scanner scnr = new Scanner("aba\n-4\n\n0\n0.2\n5");
 		assertEquals("error 1: Failed taking input for numbers > 0"
-				, 0.2, InterestCalculator.takeInput("", scnr, 0, 3), 0.001);
+				, 0.2, InterestCalculator.takeInput("", scnr, false), 0.001);
 		scnr.close();
 		
-		// 2 Take input that isn't null, isn't 0, isn't negative, and isn't < 1
+		// 2 Check if takeInout parses correct input when user returns characters, negative numbers
+		//	0, and doubles less than 1, with mfactor set to true
 		scnr = new Scanner("aba\n-4\n\n0\n0.2\n5");
 		assertEquals("error 2: Failed taking input for 0 < number < 1"
-				, 5, InterestCalculator.takeInput("", scnr, 0), 0.001);
-		scnr.close();
-		
-		// 3 Only accept input that is 0 or negative
-		scnr = new Scanner("aba\n-4\n\n0\n0.2\n5");
-		assertEquals("error 3: Failed taking input for numbers < 0"
-				, -4, InterestCalculator.takeInput("", scnr, 2), 0.001);
+				, 5, InterestCalculator.takeInput("", scnr, true), 0.001);
 		scnr.close();
 	}
 	
@@ -76,9 +83,9 @@ public class InterestCalculatorTester {
 	 */
 	@Test
 	public void testCalcInterest() {
-		// 1 Normal case: mfactor = 5, compound rate = annual (1), interest = 10
-		assertEquals("error 1: mfactor = 5, compound rate = 1, interest = 10"
-				, 17, InterestCalculator.calcInterest(5, 1, 10), 0.001);
+		// 1 Normal case: mfactor = 20, compound rate = annual (1), interest = 20
+		assertEquals("error 1: mfactor = 20, compound rate = 1, interest = 20"
+				, 17, InterestCalculator.calcInterest(20, 1, 20), 0.001);
 		
 		// 2 100% interest rate: mfactor = 2, compound rate = 1, interest = 200
 		assertEquals("error 2: mfactor = 2, compound rate = 1, interest = 200"
@@ -88,8 +95,12 @@ public class InterestCalculatorTester {
 		assertEquals("error 3: mfactor = 1, compound rate = 1, interest = 200"
 				, 0, InterestCalculator.calcInterest(1, 1, 200), 0.001);
 		
-		// 4 Compounded monthly: mfactor = 5, compound rate = 12, interest = 10
-		assertEquals("error 4: mfactor = 5, compound rate = 12, interest = 10"
-				, 17, InterestCalculator.calcInterest(5, 12, 10), 0.001);
+		// 4 Compounded monthly: mfactor = 20, compound rate = 12, interest = 20
+		assertEquals("error 4: mfactor = 20, compound rate = 12, interest = 20"
+				, 16, InterestCalculator.calcInterest(20, 12, 20), 0.001);
+		
+		// 5 Compounded daily: mfactor = 20, compound rate = 365, interest = 20
+		assertEquals("error 5: mfactor = 20, compound rate = 365, interest = 20"
+				, 15, InterestCalculator.calcInterest(20, 365, 20), 0.001);
 	}
 }
