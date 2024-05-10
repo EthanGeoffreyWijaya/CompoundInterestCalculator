@@ -9,10 +9,18 @@ public class InterestCalculatorTester {
 
 	/**
 	 * Tester method for checkDouble()
+	 * 
+	 * Checks for variations of valid input including different number sizes.
+	 * Also checks for erroneous input. Including:
+	 * 		null
+	 * 		empty string
+	 * 		0
+	 * 		negative number
+	 * 		normal string (not a valid double)
 	 */
 	@Test
 	public void testCheckDouble() {
-		// Check if parsed double is properly returned upon valid input
+		// 1 Check if parsed double is properly returned upon valid input
 		String errmsg1 = "error 1: checkDouble failed to return valid parsed double from string";
 		// Ensure exception is not thrown
 		try {
@@ -60,6 +68,13 @@ public class InterestCalculatorTester {
 	
 	/**
 	 * Tester method for takeInput()
+	 * 
+	 * Checks if correct data is parsed with mix of erroneous and valid user input
+	 * Erroneous input includes:
+	 * 		Not valid double
+	 * 		Negative number
+	 * 		0
+	 * 		Number less than 1 (For isMfactor=true case)
 	 */
 	@Test
 	public void testTakeInput() {
@@ -80,6 +95,13 @@ public class InterestCalculatorTester {
 	
 	/**
 	 * Tester method for calcInterest()
+	 * 
+	 * Tests whether calcInterest returns correct result under various conditions:
+	 * 		Annual compound rate
+	 * 		Monthly compound rate
+	 * 		Daily compound rate
+	 * 		Double interest
+	 * 		Mfactor of 1
 	 */
 	@Test
 	public void testCalcInterest() {

@@ -4,15 +4,11 @@ import java.util.Scanner;
 
 public class InterestCalculator {	
 	/**
-	 * Check if input fits requirements and returns an error code if a requirement fails:
+	 * Check if string input is a valid double. Returns the parsed double if it is, if not
+	 * 		throws an exception.
 	 *
 	 * @param str The string whose contents to check against the requirements
-	 * @return An error code corresponding to the errorMsgs array which describes
-	 * 				the conditions the string has met:
-	 * 				0 - All requirements passed
-	 * 				1 - Is not a double (String or null)
-	 * 				2 - Number is <= 0
-	 * 				3 - Number is < 1
+	 * @return The parsed double from the input string
 	 */
 	protected static double checkAndParseDouble(String str) {
 		double result;
@@ -34,10 +30,9 @@ public class InterestCalculator {
 	 * 
 	 * @param msg A string containing the message to prompt the user with
 	 * @param scnr A scanner object from which to take input
-	 * @param successCodes	int representing which error code from checkDouble is 
-	 * 							allowed to consider succesful input
+	 * @param isMfactor True if we are using this to prompt for multiplication factor
 	 * 
-	 * @return
+	 * @return The valid parsed double specified by user input
 	 */
 	protected static double takeInput(String msg, Scanner scnr, boolean isMfactor ) {
 		double db = 0;
@@ -53,6 +48,7 @@ public class InterestCalculator {
 			try {
 				// Check if input is valid
 				db = checkAndParseDouble(temp);
+				// If we are looking for a multiplication factor, it cannot be less than 1
 				if (isMfactor && db < 1) {
 					System.out.println("The multiplication factor cannot be less than 1.");
 				} else {
@@ -74,7 +70,7 @@ public class InterestCalculator {
 	 * @param mfactor A double for the multiplication factor to multiply with the original deposit
 	 * @param compoundRate A double for the amount of times interest is compounded in a year
 	 * @param interest A double for the annual interest rate in %
-	 * @return
+	 * @return The result of the calculations
 	 */
 	protected static double calcInterest(double mfactor, double compoundRate, double interest) {
 		// Calculate the number of years using compound interest formula:
